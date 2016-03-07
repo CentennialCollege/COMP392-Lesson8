@@ -40,8 +40,8 @@ Physijs.scripts.ammo = "/Scripts/lib/Physijs/examples/js/ammo.js";
 var game = (() => {
 
     // declare game objects
-    var havePointerLock:boolean; 
-    var element: HTMLElement;
+    var havePointerLock: boolean;
+    var element: any;
     var scene: Scene = new Scene(); // Instantiate Scene Object
     var renderer: Renderer;
     var camera: PerspectiveCamera;
@@ -61,22 +61,31 @@ var game = (() => {
         instructions = document.getElementById("instructions");
         
         //check to see if pointerlock is supported
-        havePointerLock = 'pointerLockElement' in document || 
-        'mozPointerLockElement' in document ||
-        'webkitPointerLockElement' in document;
-        
-        if(havePointerLock) {
+        havePointerLock = 'pointerLockElement' in document ||
+            'mozPointerLockElement' in document ||
+            'webkitPointerLockElement' in document;
+
+        if (havePointerLock) {
             element = document.body;
-            
-            instructions.addEventListener('click', () =>{
+
+            instructions.addEventListener('click', () => {
                 
                 // Ask the user for pointer lock
                 console.log("Requesting PointerLock");
+
+                element.requestPointerLock = element.requestPointerLock ||
+                    element.mozRequestPointerLock ||
+                    element.webkitRequestPointerLock;
+
                 element.requestPointerLock();
             });
-            
+
             document.addEventListener('pointerlockchange', pointerLockChange);
+            document.addEventListener('mozpointerlockchange', pointerLockChange);
+            document.addEventListener('webkitpointerlockchange', pointerLockChange);
             document.addEventListener('pointerlockerror', pointerLockError);
+            document.addEventListener('mozpointerlockerror', pointerLockError);
+            document.addEventListener('webkitpointerlockerror', pointerLockError);
         }
 
         setupRenderer(); // setup the default renderer
@@ -128,18 +137,22 @@ var game = (() => {
     }
     
     //PointerLockChange Event Handler
-    function pointerLockChange(event):void {
-        if(document.pointerLockElement === element) {
+    function pointerLockChange(event): void {
+        if (document.pointerLockElement === element) {
             // enable our mouse and keyboard controls
             blocker.style.display = 'none';
         } else {
             // disable our mouse and keyboard controls
-            blocker.style.display ='';
+            blocker.style.display = '-webkit-box';
+            blocker.style.display = '-moz-box';
+            blocker.style.display = 'box';
+            instructions.style.display = '';
+            console.log("PointerLock disabled");
         }
     }
     
     //PointerLockError Event Handler
-    function pointerLockError(event):void {
+    function pointerLockError(event): void {
         instructions.style.display = '';
         console.log("PointerLock Error Detected!!");
     }
