@@ -15,3 +15,4 @@
 /// <reference path="gulp-inject/gulp-inject.d.ts" />
 /// <reference path="gulp-typescript/gulp-typescript.d.ts" />
 /// <reference path="gulp-sourcemaps/gulp-sourcemaps.d.ts" />
+/// <reference path="physijs/physijs.d.ts" />

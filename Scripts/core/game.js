@@ -1,7 +1,7 @@
 /// <reference path="_reference.ts"/>
 // MAIN GAME FILE
 // THREEJS Aliases
-var Scene = THREE.Scene;
+var Scene = Physijs.Scene;
 var Renderer = THREE.WebGLRenderer;
 var PerspectiveCamera = THREE.PerspectiveCamera;
 var BoxGeometry = THREE.BoxGeometry;
@@ -27,21 +27,56 @@ var Point = objects.Point;
 var CScreen = config.Screen;
 //Custom Game Objects
 var gameObject = objects.gameObject;
+// Setup a Web Worker for Physijs
+Physijs.scripts.worker = "/Scripts/lib/Physijs/physijs_worker.js";
+Physijs.scripts.ammo = "/Scripts/lib/Physijs/examples/js/ammo.js";
 // setup an IIFE structure (Immediately Invoked Function Expression)
 var game = (function () {
     // declare game objects
-    var scene = new Scene();
+    var scene = new Scene(); // Instantiate Scene Object
     var renderer;
     var camera;
     var control;
     var gui;
     var stats;
+    var blocker;
+    var instructions;
+    var spotLight;
+    var groundGeometry;
+    var groundMaterial;
+    var ground;
     function init() {
-        // Instantiate a new Scene object
-        //scene = new Scene();
+        // Create to HTMLElements
+        blocker = document.getElementById("blocker");
+        instructions = document.getElementById("instructions");
         setupRenderer(); // setup the default renderer
         setupCamera(); // setup the camera
-        /* ENTER CODE HERE */
+        // Spot Light
+        spotLight = new SpotLight(0xffffff);
+        spotLight.position.set(20, 40, -15);
+        spotLight.castShadow = true;
+        spotLight.intensity = 2;
+        spotLight.lookAt(new Vector3(0, 0, 0));
+        spotLight.shadowCameraNear = 2;
+        spotLight.shadowCameraFar = 200;
+        spotLight.shadowCameraLeft = -5;
+        spotLight.shadowCameraRight = 5;
+        spotLight.shadowCameraTop = 5;
+        spotLight.shadowCameraBottom = -5;
+        spotLight.shadowMapWidth = 2048;
+        spotLight.shadowMapHeight = 2048;
+        spotLight.shadowDarkness = 0.5;
+        spotLight.name = "Spot Light";
+        scene.add(spotLight);
+        console.log("Added spotLight to scene");
+        // Burnt Ground
+        groundGeometry = new BoxGeometry(32, 1, 32);
+        groundMaterial = new LambertMaterial({ color: 0xe75d14 });
+        ground = new Mesh(groundGeometry, groundMaterial);
+        ground.receiveShadow = true;
+        ground.name = "Ground";
+        scene.add(ground);
+        console.log("Added Burnt Ground to scene");
         // add controls
         gui = new GUI();
         control = new Control();
@@ -51,10 +86,18 @@ var game = (function () {
         console.log("Added Stats to scene...");
         document.body.appendChild(renderer.domElement);
         gameLoop(); // render the scene	
+        window.addEventListener('resize', onWindowResize, false);
+    }
+    // Window Resize Event Handler
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
     }
     function addControl(controlObject) {
         /* ENTER CODE for the GUI CONTROL HERE */
     }
+    // Add Frame Rate Stats to the Scene
     function addStatsObject() {
         stats = new Stats();
         stats.setMode(0);
@@ -73,20 +116,17 @@ var game = (function () {
     }
     // Setup default renderer
     function setupRenderer() {
-        renderer = new Renderer();
+        renderer = new Renderer({ antialias: true });
         renderer.setClearColor(0x404040, 1.0);
+        renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(CScreen.WIDTH, CScreen.HEIGHT);
-        //renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         console.log("Finished setting up Renderer...");
     }
     // Setup main camera for the scene
     function setupCamera() {
         camera = new PerspectiveCamera(35, config.Screen.RATIO, 0.1, 100);
-        camera.position.x = 15.3;
-        camera.position.y = 18.5;
-        camera.position.z = -28.7;
-        camera.rotation.set(-1.10305, 0.49742, -0.1396);
+        camera.position.set(0, 10, 30);
         camera.lookAt(new Vector3(0, 0, 0));
         console.log("Finished setting up Camera...");
     }

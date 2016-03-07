@@ -19,6 +19,7 @@
   "dependencies": {
     "three.js": "threejs#*",
     "dat-gui": "~0.5.1",
-    "stats.js": "*"
+    "stats.js": "*",
+    "Physijs": "physijs#*"
   }
 }

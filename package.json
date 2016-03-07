@@ -4,7 +4,7 @@
   "description": "COMP392-Lesson 8 for Centennial College",
   "main": "game.js",
   "dependencies": {
-    "typescript": "^1.7.5"
+    "typescript": "^1.8.7"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
