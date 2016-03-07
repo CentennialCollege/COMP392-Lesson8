@@ -25,6 +25,7 @@ var Vector3 = THREE.Vector3;
 var Face3 = THREE.Face3;
 var Point = objects.Point;
 var CScreen = config.Screen;
+var Clock = THREE.Clock;
 //Custom Game Objects
 var gameObject = objects.gameObject;
 // Setup a Web Worker for Physijs
@@ -47,6 +48,10 @@ var game = (function () {
     var groundGeometry;
     var groundMaterial;
     var ground;
+    var clock;
+    var playerGeometry;
+    var playerMaterial;
+    var player;
     function init() {
         // Create to HTMLElements
         blocker = document.getElementById("blocker");
@@ -72,6 +77,15 @@ var game = (function () {
             document.addEventListener('mozpointerlockerror', pointerLockError);
             document.addEventListener('webkitpointerlockerror', pointerLockError);
         }
+        // Scene changes for Physijs
+        scene.name = "Main";
+        scene.fog = new THREE.Fog(0xffffff, 0, 750);
+        //scene.setGravity(0);
+        scene.addEventListener('update', function () {
+            scene.simulate(undefined, 2);
+        });
+        // setup a THREE.JS Clock object
+        clock = new Clock();
         setupRenderer(); // setup the default renderer
         setupCamera(); // setup the camera
         // Spot Light
@@ -94,12 +108,22 @@ var game = (function () {
         console.log("Added spotLight to scene");
         // Burnt Ground
         groundGeometry = new BoxGeometry(32, 1, 32);
-        groundMaterial = new LambertMaterial({ color: 0xe75d14 });
-        ground = new Mesh(groundGeometry, groundMaterial);
+        groundMaterial = Physijs.createMaterial(new LambertMaterial({ color: 0xe75d14 }), 0.4, 0);
+        ground = new Physijs.ConvexMesh(groundGeometry, groundMaterial, 0);
         ground.receiveShadow = true;
         ground.name = "Ground";
         scene.add(ground);
         console.log("Added Burnt Ground to scene");
+        // Player Object
+        playerGeometry = new BoxGeometry(2, 2, 2);
+        playerMaterial = Physijs.createMaterial(new LambertMaterial({ color: 0x00ff00 }), 0.4, 0);
+        player = new Physijs.BoxMesh(playerGeometry, playerMaterial, 1);
+        player.position.set(0, 30, 10);
+        player.receiveShadow = true;
+        player.castShadow = true;
+        player.name = "Player";
+        scene.add(player);
+        console.log("Added Player to Scene");
         // add controls
         gui = new GUI();
         control = new Control();
@@ -109,6 +133,7 @@ var game = (function () {
         console.log("Added Stats to scene...");
         document.body.appendChild(renderer.domElement);
         gameLoop(); // render the scene	
+        scene.simulate();
         window.addEventListener('resize', onWindowResize, false);
     }
     //PointerLockChange Event Handler
