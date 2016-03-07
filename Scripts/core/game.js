@@ -33,6 +33,8 @@ Physijs.scripts.ammo = "/Scripts/lib/Physijs/examples/js/ammo.js";
 // setup an IIFE structure (Immediately Invoked Function Expression)
 var game = (function () {
     // declare game objects
+    var havePointerLock;
+    var element;
     var scene = new Scene(); // Instantiate Scene Object
     var renderer;
     var camera;
@@ -49,6 +51,20 @@ var game = (function () {
         // Create to HTMLElements
         blocker = document.getElementById("blocker");
         instructions = document.getElementById("instructions");
+        //check to see if pointerlock is supported
+        havePointerLock = 'pointerLockElement' in document ||
+            'mozPointerLockElement' in document ||
+            'webkitPointerLockElement' in document;
+        if (havePointerLock) {
+            element = document.body;
+            instructions.addEventListener('click', function () {
+                // Ask the user for pointer lock
+                console.log("Requesting PointerLock");
+                element.requestPointerLock();
+            });
+            document.addEventListener('pointerlockchange', pointerLockChange);
+            document.addEventListener('pointerlockerror', pointerLockError);
+        }
         setupRenderer(); // setup the default renderer
         setupCamera(); // setup the camera
         // Spot Light
@@ -87,6 +103,22 @@ var game = (function () {
         document.body.appendChild(renderer.domElement);
         gameLoop(); // render the scene	
         window.addEventListener('resize', onWindowResize, false);
+    }
+    //PointerLockChange Event Handler
+    function pointerLockChange(event) {
+        if (document.pointerLockElement === element) {
+            // enable our mouse and keyboard controls
+            blocker.style.display = 'none';
+        }
+        else {
+            // disable our mouse and keyboard controls
+            blocker.style.display = '';
+        }
+    }
+    //PointerLockError Event Handler
+    function pointerLockError(event) {
+        instructions.style.display = '';
+        console.log("PointerLock Error Detected!!");
     }
     // Window Resize Event Handler
     function onWindowResize() {

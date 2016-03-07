@@ -40,6 +40,8 @@ Physijs.scripts.ammo = "/Scripts/lib/Physijs/examples/js/ammo.js";
 var game = (() => {
 
     // declare game objects
+    var havePointerLock:boolean; 
+    var element: HTMLElement;
     var scene: Scene = new Scene(); // Instantiate Scene Object
     var renderer: Renderer;
     var camera: PerspectiveCamera;
@@ -57,6 +59,25 @@ var game = (() => {
         // Create to HTMLElements
         blocker = document.getElementById("blocker");
         instructions = document.getElementById("instructions");
+        
+        //check to see if pointerlock is supported
+        havePointerLock = 'pointerLockElement' in document || 
+        'mozPointerLockElement' in document ||
+        'webkitPointerLockElement' in document;
+        
+        if(havePointerLock) {
+            element = document.body;
+            
+            instructions.addEventListener('click', () =>{
+                
+                // Ask the user for pointer lock
+                console.log("Requesting PointerLock");
+                element.requestPointerLock();
+            });
+            
+            document.addEventListener('pointerlockchange', pointerLockChange);
+            document.addEventListener('pointerlockerror', pointerLockError);
+        }
 
         setupRenderer(); // setup the default renderer
 	
@@ -104,6 +125,23 @@ var game = (() => {
         gameLoop(); // render the scene	
         
         window.addEventListener('resize', onWindowResize, false);
+    }
+    
+    //PointerLockChange Event Handler
+    function pointerLockChange(event):void {
+        if(document.pointerLockElement === element) {
+            // enable our mouse and keyboard controls
+            blocker.style.display = 'none';
+        } else {
+            // disable our mouse and keyboard controls
+            blocker.style.display ='';
+        }
+    }
+    
+    //PointerLockError Event Handler
+    function pointerLockError(event):void {
+        instructions.style.display = '';
+        console.log("PointerLock Error Detected!!");
     }
     
     // Window Resize Event Handler
