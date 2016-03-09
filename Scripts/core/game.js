@@ -55,6 +55,7 @@ var game = (function () {
     var sphereGeometry;
     var sphereMaterial;
     var sphere;
+    var keyboardControls;
     function init() {
         // Create to HTMLElements
         blocker = document.getElementById("blocker");
@@ -145,6 +146,7 @@ var game = (function () {
         sphere.name = "Sphere";
         scene.add(sphere);
         console.log("Added Sphere to Scene");
+        keyboardControls = new objects.KeyboardControls();
         // add controls
         gui = new GUI();
         control = new Control();
@@ -198,6 +200,21 @@ var game = (function () {
     // Setup main game loop
     function gameLoop() {
         stats.update();
+        if (keyboardControls.moveForward) {
+            console.log("Moving Forward");
+        }
+        if (keyboardControls.moveLeft) {
+            console.log("Moving left");
+        }
+        if (keyboardControls.moveBackward) {
+            console.log("Moving Backward");
+        }
+        if (keyboardControls.moveRight) {
+            console.log("Moving Right");
+        }
+        if (keyboardControls.jump) {
+            console.log("Jumping");
+        }
         // render using requestAnimationFrame
         requestAnimationFrame(gameLoop);
         // render the scene

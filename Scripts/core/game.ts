@@ -62,6 +62,7 @@ var game = (() => {
     var sphereGeometry: SphereGeometry;
     var sphereMaterial: Physijs.Material;
     var sphere: Physijs.Mesh;
+    var keyboardControls: objects.KeyboardControls;
 
     function init() {
         // Create to HTMLElements
@@ -173,6 +174,7 @@ var game = (() => {
         scene.add(sphere);
         console.log("Added Sphere to Scene");
         
+        keyboardControls = new objects.KeyboardControls();
         
         // add controls
         gui = new GUI();
@@ -235,6 +237,22 @@ var game = (() => {
     // Setup main game loop
     function gameLoop(): void {
         stats.update();
+        
+        if(keyboardControls.moveForward) {
+            console.log("Moving Forward");
+        }
+        if(keyboardControls.moveLeft) {
+            console.log("Moving left");
+        }
+        if(keyboardControls.moveBackward) {
+            console.log("Moving Backward");
+        }
+        if(keyboardControls.moveRight) {
+            console.log("Moving Right");
+        }
+        if(keyboardControls.jump) {
+            console.log("Jumping");
+        }
         
         // render using requestAnimationFrame
         requestAnimationFrame(gameLoop);
